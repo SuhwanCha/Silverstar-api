@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use PHPUnit\Framework\MockObject\Stub\Exception;
 
 class RouteController extends Controller {
  public function show(Request $r) {
@@ -32,8 +33,14 @@ class RouteController extends Controller {
    ),
    'route' => array(),
   );
+  $data['route'] = $this->pasrseWalk($route);
 
-  foreach ($route as $v) {
+  return response()->json($data, 200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
+ }
+
+ private function pasrseWalk($arr) {
+  $data = array();
+  foreach ($arr as $v) {
    if (($v->eye[1] - $v->lookAt[1] == 0)) {
     if ($v->eye[0] - $v->lookAt[0] > 0) {
      $tan = -90;
@@ -63,10 +70,9 @@ class RouteController extends Controller {
     'pathX' => $pathX,
     'pathY' => $pathY,
    );
-   array_push($data['route'], $temp);
+   array_push($data, $temp);
   }
-
-  return response()->json($data, 200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
+  return $data;
  }
 
  public function showBus(Request $r) {
@@ -76,18 +82,81 @@ class RouteController extends Controller {
   $y1 = $r->input('y1');
   $y2 = $r->input('y2');
   $format = 'https://beta.map.naver.com/api/dir/findpt?start=%f,%f,placeid=,name=1&goal=%f,%f,placeid=,name=1&crs=EPSG:4326&departureTime=%s&isStatic=null&mode=TIME&lang=ko';
-//   $format = 'https://beta.map.naver.com/api/dir/findpt?start=%f,%f&goal=%f,%f&crs=EPSG:4326&departureTime=%s&isStatic=null&mode=TIME&lang=ko';
-  // date("Y-m-d H:i:s") 2019-06-11T17:19:19
-
-  $url = sprintf($format, $x1, $y1, $x2, $y2, date("Y-m-d H:i:s", time() - date("Z")));
-  echo $url;
+  $url = sprintf($format, $x1, $y1, $x2, $y2, str_replace(' ', 'T', date("Y-m-d H:i:s", time() - date("Z"))));
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
   curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
   $result = curl_exec($ch);
-  echo $result;
+  $rawData = json_decode($result);
 
+  foreach ($rawData->paths as $v) {
+   if ($v->type == "BUS") {
+    $path = $v;
+   }
+  }
+  if (!$path) {
+   return "error";
+  }
+
+  $data = array(
+   'summary' => array(
+    'departureTime' => explode('T', $path->departureTime)[1],
+    'arrivalTime' => explode('T', $path->arrivalTime)[1],
+    'duration' => $path->duration,
+   ),
+   'route' => array(),
+  );
+  foreach ($path->legs[0]->steps as $v) {
+   if ($v->type == 'WALKING') {
+    $temp = array(
+     'type' => 'WALKING',
+    );
+    $temp = array_merge($temp, $this->pasrseWalk($v->walkpath->legs[0]->steps));
+
+   } else if ($v->type == 'BUS') {
+    $pathX = array();
+    $pathY = array();
+    foreach ($v->points as $vv) {
+     if (($vv)) {
+      array_push($pathX, $vv->x);
+      array_push($pathY, $vv->y);
+     }
+    }
+    $staion = array();
+    foreach ($v->stations as $vv) {
+     $temp = array(
+      'id' => $vv->id,
+      'name' => $vv->displayName,
+     );
+     array_push($staion, $temp);
+    }
+    try {
+     $temp = array(
+      'type' => $v->type,
+      'description' => $v->instruction,
+      'distance' => $v->distance,
+      'duration' => $v->duration,
+      'busNumber' => $v->routes[0]->name,
+      'busColor' => $v->routes[0]->type->color,
+      'busCongestion' => $v->arrivals[0]->items[0]->congestion->desc,
+      'remainingTime' => $v->arrivals[0]->items[0]->remainingTime,
+      'pathLength' => count($pathY),
+      'pathX' => $pathX,
+      'pathY' => $pathY,
+      'stationLength' => count($staion),
+      'station' => $staion,
+     );
+    } catch (Exception $e) {
+     return "막차가 끊겼습니다.";
+    }
+
+   }
+   array_push($data['route'], $temp);
+
+  }
+
+  return response()->json($data, 200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
  }
 
 }

@@ -6,10 +6,19 @@ Restful API Server for Silverstar
 
 - [Siverstar-API](#siverstar-api)
   - [Table of Contents](#table-of-contents)
-- [API LIST](#api-list)
-  - [Search](#search)
-    - [Search destination](#search-destination)
-    - [User search history](#user-search-history)
+  - [Notice](#notice)
+  - [API LIST](#api-list)
+    - [Search](#search)
+      - [Search destination](#search-destination)
+      - [User search history](#user-search-history)
+    - [Route](#route)
+      - [Find Walk Rotue](#find-walk-rotue)
+      - [Find Bus Rotue](#find-bus-rotue)
+
+## Notice
+
+Please note that some variables are in **minutes** and some are in **seconds**.  
+If the last track is disconnected, or if the distance is too far to be searched, a **500 error** is returned.
 
 ## API LIST
 
@@ -150,7 +159,9 @@ Restful API Server for Silverstar
 
 > TODO
 
-### Find Walk Rotue
+### Route
+
+#### Find Walk Rotue
 
 - method: POST
 - URL: /route/walk/get
@@ -204,3 +215,60 @@ Restful API Server for Silverstar
 
 - Response Example:
   [Json: Response Example](./route_get.json)
+
+#### Find Bus Rotue
+
+- method: POST
+- URL: /route/walk/get
+- Request Params
+  - `float x1`: Current longitude
+  - `float y1`: Current latitude
+  - `float x2`: Destination longitude
+  - `float y2`: Destination latitude
+- Response Params
+
+  - summary
+    - `int distance`: total distance (m)
+    - `int duration`: duration (min)
+  - route
+
+    - `string type`: "BUS" or "WALKING"
+
+      - if `type == 'WALKING'`
+        > Below is same with [Find Walk Rotue]  
+        > **Note: It is array[]**
+        - `float x`: portion longtitude
+        - `float y`: portion latitude
+        - `float direction`: angle (sexadecimal system; please refer above screenshot)
+        - `string description`: description about route
+        - `int distance`: portion distacne (m)
+        - `int duration`: portion duration (second)
+        - `int pathLength`: count of path
+        - `float[] pathX`, `float[] pathY`: coordinate to draw line
+      - else if `type == 'BUS'`
+
+        - description: Explanation of user behavior
+        - distance: distance (meter)
+        - duration: duration (mins)
+        - busNumber: bus number
+        - busColor: bus color
+        - busCongestion: congestion of bus (여유, 혼잡, 정보 없음, ...)
+        - remainingTime: Time remaining until bus arrival (**second**)
+        - pathLength: count of path
+        - `float[] pathX`, `float[] pathY`: coordinate to draw line
+        - stationLength: count of stations
+        - station[]
+          - id: station id
+          - name : station name
+
+- Request Example
+
+  ```json
+  x1: 127.0099330000003
+  y1: 37.504525000000015
+  x2: 127.0418022
+  y2: 37.52796560000001
+  ```
+
+- Response Example:
+  [Json: Response Example](./route_bus_get.json)
