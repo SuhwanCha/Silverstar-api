@@ -1,0 +1,93 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class RouteController extends Controller {
+ public function show(Request $r) {
+  $x1 = $r->input('x1');
+  $x2 = $r->input('x2');
+  $y1 = $r->input('y1');
+  $y2 = $r->input('y2');
+
+  $format = 'https://beta.map.naver.com/api/dir/findwalk?lo=ko&r=step&st=1&o=all&l=%f,%f,;%f,%f,&lang=ko';
+  $url = sprintf($format, $x1, $y1, $x2, $y2);
+
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+  $result = curl_exec($ch);
+  $rawData = json_decode($result)->routes[0];
+  $route = $rawData->legs[0]->steps;
+  array_shift($route);
+  array_pop($route);
+  $summary = $rawData->summary;
+  $data = array(
+   'summary' => array(
+    'distance' => $summary->distance,
+    'duration' => $summary->duration,
+    'routeLength' => count($route),
+   ),
+   'route' => array(),
+  );
+
+  foreach ($route as $v) {
+   if (($v->eye[1] - $v->lookAt[1] == 0)) {
+    if ($v->eye[0] - $v->lookAt[0] > 0) {
+     $tan = -90;
+    } else {
+     $tan = 90;
+    }
+   } else {
+    $tan = (atan(($v->lookAt[0] - $v->eye[0]) / ($v->lookAt[1] - $v->eye[1])) * 180 / M_PI);
+   }
+   $pathX = array();
+   $pathY = array();
+   foreach (explode(' ', $v->path) as $vv) {
+    if (($vv)) {
+     array_push($pathX, explode(',', $vv)[1]);
+     array_push($pathY, explode(',', $vv)[0]);
+
+    }
+   }
+   $temp = array(
+    'x' => $v->lng,
+    'y' => $v->lat,
+    'direction' => $tan,
+    'description' => $v->turnDesc,
+    'distance' => $v->distance,
+    'duration' => $v->duration,
+    'pathLength' => count($pathX),
+    'pathX' => $pathX,
+    'pathY' => $pathY,
+   );
+   array_push($data['route'], $temp);
+  }
+
+  return response()->json($data, 200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
+ }
+
+ public function showBus(Request $r) {
+// https://beta.map.naver.com/api/dir/findpt?start=127.04899330000003,37.504525000000015,placeid=13479324,name=%EC%84%A0%EB%A6%89%EC%97%AD%202%ED%98%B8%EC%84%A0&goal=127.04180226000001,37.52796560000001,placeid=12134051,name=%EA%B0%A4%EB%9F%AC%EB%A6%AC%EC%95%84%EB%B0%B1%ED%99%94%EC%A0%90%20%EB%AA%85%ED%92%88%EA%B4%80%20EAST&crs=EPSG:4326&departureTime=2019-06-11T17:19:19&isStatic=null&mode=TIME&lang=ko
+  $x1 = $r->input('x1');
+  $x2 = $r->input('x2');
+  $y1 = $r->input('y1');
+  $y2 = $r->input('y2');
+  $format = 'https://beta.map.naver.com/api/dir/findpt?start=%f,%f,placeid=,name=1&goal=%f,%f,placeid=,name=1&crs=EPSG:4326&departureTime=%s&isStatic=null&mode=TIME&lang=ko';
+//   $format = 'https://beta.map.naver.com/api/dir/findpt?start=%f,%f&goal=%f,%f&crs=EPSG:4326&departureTime=%s&isStatic=null&mode=TIME&lang=ko';
+  // date("Y-m-d H:i:s") 2019-06-11T17:19:19
+
+  $url = sprintf($format, $x1, $y1, $x2, $y2, date("Y-m-d H:i:s", time() - date("Z")));
+  echo $url;
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+  $result = curl_exec($ch);
+  echo $result;
+
+ }
+
+}

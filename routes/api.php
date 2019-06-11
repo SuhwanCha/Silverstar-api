@@ -12,4 +12,10 @@
  */
 
 Route::post('/search/get', 'SearchController@show');
-Route::get('/search/history/get/$uid', 'SearchController@showHistory');
+Route::get('/search/history/get/{id}', 'SearchController@showHistory');
+Route::post('/search/favorite/add', 'SearchController@putFavorite');
+Route::get('/search/favorite/get/{id}', 'SearchController@getFavorite');
+
+Route::post('/route/walk/get', 'RouteController@show');
+Route::post('/route/bus/get', 'RouteController@showBus');
+Route::post('/route/live', 'RouteController@live');

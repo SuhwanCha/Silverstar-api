@@ -11,33 +11,42 @@ Restful API Server for Silverstar
     - [Search destination](#search-destination)
     - [User search history](#user-search-history)
 
-# API LIST
+## API LIST
 
-## Search
+### Search
 
-### Search destination
+#### Search destination
+
+> Search destination and put search history automatically
 
 - Method: POST
 - URL: /search/get
-- Params
-
-  - `Float x`: Center longitude
-  - `Float y`: Center latitude
-  - `String query`: Search Keyword
-  - `Boolean sort`
+- Request Params
+  - `float x`: Center longitude
+  - `float y`: Center latitude
+  - `string query`: Search Keyword
+  - `boolean sort`
     - if 1: order by accuracy
     - if 0: order by distance
+  - `string[16] deviceId`: Device ID
+- Response Params
 
-- Sample Input
+  - `float x`: longtitude
+  - `float y`: latitude
+  - `string name`: name of location
+  - `string addr`: address
+
+- Request Example
 
   ```text
   x: 127.06283102249932
   y: 37.514322572335935
   query: 서울시청
   sort: 1
+  deviceId: 141252142
   ```
 
-- Sample Output
+- Response Example
 
   ```json
   [
@@ -134,9 +143,64 @@ Restful API Server for Silverstar
   ]
   ```
 
-### User search history
+#### User search history
 
 - method: GET
 - URL: /search/history/get/`uid`
 
 > TODO
+
+### Find Walk Rotue
+
+- method: POST
+- URL: /route/walk/get
+- Request Params
+  - `float x1`: Current longitude
+  - `float y1`: Current latitude
+  - `float x2`: Destination longitude
+  - `float y2`: Destination latitude
+- Response Params
+
+  - summary
+    - `int distance`: total distance (m)
+    - `int duration`: duration (second)
+    - `int routeLength`: count of routes
+  - route
+
+    - `float x`: portion longtitude
+    - `float y`: portion latitude
+    - `float direction`: angle (sexadecimal system; please refer above screenshot)
+    - `string description`: description about route
+    - `int distance`: portion distacne (m)
+    - `int duration`: portion duration (second)
+    - `int pathLength`: count of path
+    - `float[] pathX`, `float[] pathY`: coordinate to draw line
+
+      > Note: pathX[n] and pathY[n] is coupled  
+      > i.e.) draw pathX[0], pathY[0] and pathX[1], pathY[1], ... , pathX[n], pathY[n]
+
+      ```java
+        for(int i = 0; i < data['summary']['routeLength']; i++){
+          // do something
+          for (int j = 0; j < data['route'][i]['pathLength']; j++) {
+            map.drawLine(pathY, pathX);
+            // do something
+          }
+        }
+      ```
+
+- Request Example  
+  ![route_example](./route_example.png)
+
+  > Current location: 선릉역 2호선  
+  > Destination location: 갤러리아백화점 명품관 EAST
+
+  ```json
+  x1: 127.04899330000003
+  y1: 37.504525000000015
+  x2: 127.0418022
+  y2: 37.52796560000001
+  ```
+
+- Response Example:
+  [Json: Response Example](./route_get.json)
