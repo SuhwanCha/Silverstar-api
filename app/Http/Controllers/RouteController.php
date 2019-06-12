@@ -132,6 +132,13 @@ class RouteController extends Controller {
      array_push($staion, $temp);
     }
     try {
+     if (count($v->arrivals)) {
+      $busCongestion = $v->arrivals[0]->items[0]->congestion->desc;
+      $remainingTime = $v->arrivals[0]->items[0]->remainingTime;
+     } else {
+      $busCongestion = null;
+      $remainingTime = null;
+     }
      $temp = array(
       'type' => $v->type,
       'description' => $v->instruction,
@@ -139,8 +146,8 @@ class RouteController extends Controller {
       'duration' => $v->duration,
       'busNumber' => $v->routes[0]->name,
       'busColor' => $v->routes[0]->type->color,
-      'busCongestion' => $v->arrivals[0]->items[0]->congestion->desc,
-      'remainingTime' => $v->arrivals[0]->items[0]->remainingTime,
+      'busCongestion' => $busCongestion,
+      'remainingTime' => $remainingTime,
       'pathLength' => count($pathY),
       'pathX' => $pathX,
       'pathY' => $pathY,

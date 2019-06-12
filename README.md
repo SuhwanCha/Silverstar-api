@@ -247,19 +247,19 @@ If the last track is disconnected, or if the distance is too far to be searched,
         - `float[] pathX`, `float[] pathY`: coordinate to draw line
       - else if `type == 'BUS'`
 
-        - description: Explanation of user behavior
-        - distance: distance (meter)
-        - duration: duration (mins)
-        - busNumber: bus number
-        - busColor: bus color
-        - busCongestion: congestion of bus (여유, 혼잡, 정보 없음, ...)
-        - remainingTime: Time remaining until bus arrival (**second**)
-        - pathLength: count of path
+        - `string description`: Explanation of user behavior
+        - `int distance`: distance (meter)
+        - `int duration`: duration (mins)
+        - `string busNumber`: bus number
+        - `string busColor`: bus color (i.e. #ff0000)
+        - `string busCongestion`: congestion of bus (여유, 혼잡, 정보 없음, ...)
+        - `int remainingTime`: Time remaining until bus arrival (**second**)
+        - `int pathLength`: count of path
         - `float[] pathX`, `float[] pathY`: coordinate to draw line
-        - stationLength: count of stations
-        - station[]
-          - id: station id
-          - name : station name
+        - `int stationLength`: count of stations
+        - `station[]`
+          - `int id`: station id
+          - `string name` : station name
 
 - Request Example
 
