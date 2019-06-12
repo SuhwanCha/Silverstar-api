@@ -95,8 +95,8 @@ class RouteController extends Controller {
     $path = $v;
    }
   }
-  if (!$path) {
-   return "error";
+  if (!isset($path)) {
+   return "버스로만 갈 수 있는 방법이 없습니다.";
   }
 
   $data = array(
