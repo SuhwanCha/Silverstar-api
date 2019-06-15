@@ -235,8 +235,8 @@ If the last track is disconnected, or if the distance is too far to be searched,
     - `string type`: "BUS" or "WALKING"
 
       - if `type == 'WALKING'`
-        > Below is same with [Find Walk Rotue]  
-        > **Note: It is array[]**
+        - route[]
+          > Below is same with [Find Walk Rotue]
         - `float x`: portion longtitude
         - `float y`: portion latitude
         - `float direction`: angle (sexadecimal system; please refer above screenshot)
@@ -258,8 +258,9 @@ If the last track is disconnected, or if the distance is too far to be searched,
         - `float[] pathX`, `float[] pathY`: coordinate to draw line
         - `int stationLength`: count of stations
         - `station[]`
-          - `int id`: station id
+          - `string id`: station id
           - `string name` : station name
+          - ``
 
 - Request Example
 

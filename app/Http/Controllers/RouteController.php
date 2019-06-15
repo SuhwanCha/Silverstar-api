@@ -54,8 +54,8 @@ class RouteController extends Controller {
    $pathY = array();
    foreach (explode(' ', $v->path) as $vv) {
     if (($vv)) {
-     array_push($pathX, explode(',', $vv)[1]);
-     array_push($pathY, explode(',', $vv)[0]);
+     array_push($pathX, (float) explode(',', $vv)[1]);
+     array_push($pathY, (float) explode(',', $vv)[0]);
 
     }
    }
@@ -112,25 +112,38 @@ class RouteController extends Controller {
     $temp = array(
      'type' => 'WALKING',
     );
-    $temp = array_merge($temp, $this->pasrseWalk($v->walkpath->legs[0]->steps));
+    $temp = array_merge($temp, array(
+     'route' => $this->pasrseWalk($v->walkpath->legs[0]->steps),
+    ));
 
    } else if ($v->type == 'BUS') {
     $pathX = array();
     $pathY = array();
     foreach ($v->points as $vv) {
      if (($vv)) {
-      array_push($pathX, $vv->x);
-      array_push($pathY, $vv->y);
+      array_push($pathX, (float) $vv->x);
+      array_push($pathY, (float) $vv->y);
      }
     }
     $staion = array();
     foreach ($v->stations as $vv) {
+     // https: //beta.map.naver.com/api/search?caller=pcweb&query=23-214&type=all&page=1&displayCount=20&isAdult=false&searchCoord=127.04834530000001;37.50654984122569&isPlaceRecommendationReplace=true&sscode=svc.mapv5.search&lang=ko
+     $url = 'https://beta.map.naver.com/api/search?caller=pcweb&query=' . $vv->displayCode . '&type=bus';
+     $ch = curl_init();
+     curl_setopt($ch, CURLOPT_URL, $url);
+     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+     $re = curl_exec($ch);
+     $re = json_decode($re);
      $temp = array(
-      'id' => $vv->id,
+      'id' => $vv->displayCode,
       'name' => $vv->displayName,
+      'x' => (float) $re->result->bus->busStation->list[0]->x,
+      'y' => (float) $re->result->bus->busStation->list[0]->y,
      );
      array_push($staion, $temp);
     }
+
     try {
      if (count($v->arrivals)) {
       $busCongestion = $v->arrivals[0]->items[0]->congestion->desc;
