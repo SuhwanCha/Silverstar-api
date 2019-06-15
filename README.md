@@ -14,6 +14,9 @@ Restful API Server for Silverstar
     - [Route](#route)
       - [Find Walk Rotue](#find-walk-rotue)
       - [Find Bus Rotue](#find-bus-rotue)
+    - [Bookmarks](#bookmarks)
+      - [Get Bookmarks](#get-bookmarks)
+      - [Bookmark location](#bookmark-location)
 
 ## Notice
 
@@ -155,9 +158,9 @@ If the last track is disconnected, or if the distance is too far to be searched,
 #### User search history
 
 - method: GET
-- URL: /search/history/get/`uid`
+- URL: /search/history/get/`deviceId`
 - Request Params
-  - `string[16] uid`
+  - `string[16] deviceId`
 - Response Params
   - `string query`
 - Request Example
@@ -294,21 +297,21 @@ If the last track is disconnected, or if the distance is too far to be searched,
 #### Get Bookmarks
 
 - method: GET
-- URL: /bookmark/get/`uid`
+- URL: /bookmark/get/`deviceId`
 - Request Params
-  - `string[16] uid`
+  - `string[16] deviceId`
 - Response Params
   - `string query`
 - Request Example
   `PROTOCOL://DOMAIN/bookmark/get/fociencoxl1kdlsa`
 - Response Example
 
-```json
-[
-  { "x": 127.01, "y": 37.5045, "name": "애플 가로수길", "created_at": "2019-06-15 22:29:07" },
-  { "x": 127.31, "y": 37.5045, "name": "반포 자이 아파트", "created_at": "2019-06-15 22:32:33" }
-]
-```
+  ```json
+  [
+    { "x": 127.01, "y": 37.5045, "name": "애플 가로수길", "created_at": "2019-06-15 22:29:07" },
+    { "x": 127.31, "y": 37.5045, "name": "반포 자이 아파트", "created_at": "2019-06-15 22:32:33" }
+  ]
+  ```
 
 #### Bookmark location
 
