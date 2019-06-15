@@ -156,8 +156,23 @@ If the last track is disconnected, or if the distance is too far to be searched,
 
 - method: GET
 - URL: /search/history/get/`uid`
+- Request Params
+  - `string[16] uid`
+- Response Params
+  - `string query`
+- Request Example
+  `PROTOCOL://DOMAIN/search/history/get/fociencoxl1kdlsa`
+- Response Example
 
-> TODO
+  ```json
+  [
+    { "query": "시청" },
+    { "query": "선릉역" },
+    { "query": "갤러리아 명품관 EAST" },
+    { "query": "압구정 현대아파트" },
+    { "query": "애플 가로수길" }
+  ]
+  ```
 
 ### Route
 
@@ -273,3 +288,51 @@ If the last track is disconnected, or if the distance is too far to be searched,
 
 - Response Example:
   [Json: Response Example](./route_bus_get.json)
+
+### Bookmarks
+
+#### Get Bookmarks
+
+- method: GET
+- URL: /bookmark/get/`uid`
+- Request Params
+  - `string[16] uid`
+- Response Params
+  - `string query`
+- Request Example
+  `PROTOCOL://DOMAIN/bookmark/get/fociencoxl1kdlsa`
+- Response Example
+
+```json
+[
+  { "x": 127.01, "y": 37.5045, "name": "애플 가로수길", "created_at": "2019-06-15 22:29:07" },
+  { "x": 127.31, "y": 37.5045, "name": "반포 자이 아파트", "created_at": "2019-06-15 22:32:33" }
+]
+```
+
+#### Bookmark location
+
+- method: POST
+- URL: /bookmark/put
+- Request Params
+  - `string[16] uid`
+  - `float x`
+  - `float y`
+  - `string name`: maximum 50 characters
+- Response Params
+  - "1": success
+  - "error": error
+- Request Example
+
+  ```text
+  x: 127.0099330000003
+  y: 37.504525000000015
+  name: 애플 가로수길
+  deviceid: fociencoxl1kdlsa
+  ```
+
+- Response Example
+
+  ```text
+  1
+  ```

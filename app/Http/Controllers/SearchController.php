@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use DB;
 use Illuminate\Http\Request;
 
 class SearchController extends Controller {
@@ -14,6 +15,11 @@ class SearchController extends Controller {
   */
  public function show(Request $r) {
   $format = 'https://dapi.kakao.com/v2/local/search/keyword.json?y=%f&x=%f&query=%s&sort=%s';
+  $uid = $r->input('deviceId');
+  DB::table('history')->insert([
+   'deviceid' => $uid,
+   'name' => $r->input('query'),
+  ]);
   $url = sprintf($format, $r->input('x'), $r->input('y'), urlencode($r->input('query')), $r->input('sort') ? "accuracy" : "distance");
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
@@ -52,14 +58,31 @@ class SearchController extends Controller {
   * @return Json
   */
  public function showHistory($uid) {
-  //
+  return response()->json(
+   DB::table('history')->select('name as query')->where('deviceid', $uid)->get(),
+   200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
+
  }
 
- public function putFavorite(Request $r){
+ public function putFavorite(Request $r) {
+  try {
+   DB::table('bookmark')->insert([
+    'x' => $r->input('x'),
+    'y' => $r->input('y'),
+    'name' => $r->input('name'),
+    'deviceid' => $r->input('deviceid'),
+   ]);
+   echo "1";
+  } catch (Exception $e) {
+   echo "error";
+  }
 
  }
 
- public function getFavorite($uid){
+ public function getFavorite($uid) {
+  return response()->json(
+   DB::table('bookmark')->select('x', 'y', 'name', 'created_at')->where('deviceid', $uid)->get(),
+   200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
 
  }
 }
