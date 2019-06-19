@@ -70,7 +70,7 @@ class SearchController extends Controller {
     'x' => $r->input('x'),
     'y' => $r->input('y'),
     'name' => $r->input('name'),
-    'deviceid' => $r->input('deviceid'),
+    'deviceid' => $r->input('deviceId'),
    ]);
    echo "1";
   } catch (Exception $e) {
