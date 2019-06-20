@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use PHPUnit\Framework\MockObject\Stub\Exception;
 
 class RouteController extends Controller {
  public function show(Request $r) {
@@ -93,8 +92,10 @@ class RouteController extends Controller {
   foreach ($rawData->paths as $v) {
    if ($v->type == "BUS") {
     $path = $v;
+    break;
    }
   }
+
   if (!isset($path)) {
    return "버스로만 갈 수 있는 방법이 없습니다.";
   }
@@ -127,49 +128,78 @@ class RouteController extends Controller {
     }
     $staion = array();
     foreach ($v->stations as $vv) {
-     // https: //beta.map.naver.com/api/search?caller=pcweb&query=23-214&type=all&page=1&displayCount=20&isAdult=false&searchCoord=127.04834530000001;37.50654984122569&isPlaceRecommendationReplace=true&sscode=svc.mapv5.search&lang=ko
-     $url = 'https://beta.map.naver.com/api/search?caller=pcweb&query=' . $vv->displayCode . '&type=bus';
-     $ch = curl_init();
+     $url = 'http://bus.go.kr/xmlRequest/getStationByUid.jsp';
      curl_setopt($ch, CURLOPT_URL, $url);
-     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+     curl_setopt($ch, CURLOPT_POST, 1);
+     curl_setopt($ch, CURLOPT_POSTFIELDS,
+      "strBusNumber=" . str_replace('-', '', $vv->displayCode));
+
+     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
      $re = curl_exec($ch);
-     $re = json_decode($re);
+     $xml = simplexml_load_string($re, "SimpleXMLElement", LIBXML_NOCDATA);
+     $json = json_encode($xml);
+
+     $re = json_decode($json);
      $temp = array(
       'id' => $vv->displayCode,
       'name' => $vv->displayName,
-      'x' => (float) $re->result->bus->busStation->list[0]->x,
-      'y' => (float) $re->result->bus->busStation->list[0]->y,
+      'x' => (float) $re->stationList[0]->gpsX,
+      'y' => (float) $re->stationList[0]->gpsY,
      );
      array_push($staion, $temp);
+     //  echo str_replace('-', '', $vv->displayCode) . ' ';
+     //  return response()->json($re, 200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
+
+     //  foreach ($re->msgBody->itemList as $vvv) {
+     // if ($vvv->arsId == str_replace('-', '', $vv->displayCode)) {
+     //  $temp = array(
+     //   'id' => $vv->displayCode,
+     //   'name' => $vv->displayName,
+     //   'x' => (float) $vvv->tmX,
+     //   'y' => (float) $vvv->tmY,
+     //  );
+     //  array_push($staion, $temp);
+     //  break;
+     // }
+     //  }
+     //  return response()->json($re, 200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
+     //  try {
+     //   $temp = array(
+     //    'id' => $vv->displayCode,
+     //    'name' => $vv->displayName,
+     //    'x' => (float) $re->result->bus->busStation->list[0]->x,
+     //    'y' => (float) $re->result->bus->busStation->list[0]->y,
+     //   );
+     //  } catch (ErrorException $e) {
+     //   print_r($re);
+     //  }
+
+     //  array_push($staion, $temp);
+    }
+    try {
+     $busCongestion = $v->arrivals[0]->items[0]->congestion->desc;
+     $remainingTime = $v->arrivals[0]->items[0]->remainingTime;
+    } catch (Exception $e) {
+     $busCongestion = null;
+     $remainingTime = null;
     }
 
-    try {
-     if (count($v->arrivals)) {
-      $busCongestion = $v->arrivals[0]->items[0]->congestion->desc;
-      $remainingTime = $v->arrivals[0]->items[0]->remainingTime;
-     } else {
-      $busCongestion = null;
-      $remainingTime = null;
-     }
-     $temp = array(
-      'type' => $v->type,
-      'description' => $v->instruction,
-      'distance' => $v->distance,
-      'duration' => $v->duration,
-      'busNumber' => $v->routes[0]->name,
-      'busColor' => $v->routes[0]->type->color,
-      'busCongestion' => $busCongestion,
-      'remainingTime' => $remainingTime,
-      'pathLength' => count($pathY),
-      'pathX' => $pathX,
-      'pathY' => $pathY,
-      'stationLength' => count($staion),
-      'station' => $staion,
-     );
-    } catch (Exception $e) {
-     return "막차가 끊겼습니다.";
-    }
+    $temp = array(
+     'type' => $v->type,
+     'description' => $v->instruction,
+     'distance' => $v->distance,
+     'duration' => $v->duration,
+     'busNumber' => $v->routes[0]->name,
+     'busColor' => $v->routes[0]->type->color,
+     'busCongestion' => $busCongestion,
+     'remainingTime' => $remainingTime,
+     'pathLength' => count($pathY),
+     'pathX' => $pathX,
+     'pathY' => $pathY,
+     'stationLength' => count($staion),
+     'station' => $staion,
+    );
 
    }
    array_push($data['route'], $temp);
