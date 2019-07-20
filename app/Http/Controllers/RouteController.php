@@ -46,10 +46,10 @@ class RouteController extends Controller {
   $i = 0;
   foreach ($arr as $v) {
    try {
-    $lon1 = (float) $v->eye[0];
-    $lon2 = (float) $v->lookAt[0];
-    $lat1 = (float) $v->eye[1];
-    $lat2 = (float) $v->lookAt[1];
+    $lon1 = (double) $v->eye[0];
+    $lon2 = (double) $v->lookAt[0];
+    $lat1 = (double) $v->eye[1];
+    $lat2 = (double) $v->lookAt[1];
     $a = log(tan($lat2 / 2 + M_PI / 4) / tan($lat1 / 2 + M_PI / 4));
     $lon = abs($lon1 - $lon2);
     $tan = (atan2($lon, $a) * 180 / M_PI);
@@ -63,8 +63,8 @@ class RouteController extends Controller {
    $pathY = array();
    foreach (explode(' ', $v->path) as $vv) {
     if (($vv)) {
-     array_push($pathX, (float) explode(',', $vv)[1]);
-     array_push($pathY, (float) explode(',', $vv)[0]);
+     array_push($pathX, (double) explode(',', $vv)[1]);
+     array_push($pathY, (double) explode(',', $vv)[0]);
     }
    }
    $temp = array(
@@ -88,7 +88,6 @@ class RouteController extends Controller {
  }
 
  public function showBus(Request $r) {
-// https://beta.map.naver.com/api/dir/findpt?start=127.04899330000003,37.504525000000015,placeid=13479324,name=%EC%84%A0%EB%A6%89%EC%97%AD%202%ED%98%B8%EC%84%A0&goal=127.04180226000001,37.52796560000001,placeid=12134051,name=%EA%B0%A4%EB%9F%AC%EB%A6%AC%EC%95%84%EB%B0%B1%ED%99%94%EC%A0%90%20%EB%AA%85%ED%92%88%EA%B4%80%20EAST&crs=EPSG:4326&departureTime=2019-06-11T17:19:19&isStatic=null&mode=TIME&lang=ko
   $x1 = $r->input('x1');
   $x2 = $r->input('x2');
   $y1 = $r->input('y1');
@@ -135,8 +134,8 @@ class RouteController extends Controller {
     $pathY = array();
     foreach ($v->points as $vv) {
      if (($vv)) {
-      array_push($pathX, (float) $vv->x);
-      array_push($pathY, (float) $vv->y);
+      array_push($pathX, (double) $vv->x);
+      array_push($pathY, (double) $vv->y);
      }
     }
     $staion = array();
@@ -159,8 +158,8 @@ class RouteController extends Controller {
       $temp = array(
        'id' => $vv->displayCode,
        'name' => $vv->displayName,
-       'x' => (float) isset($re['stationList'][0]) ? $re['stationList'][0]['gpsX'] : $re['stationList']['gpsX'],
-       'y' => (float) isset($re['stationList'][0]) ? $re['stationList'][0]['gpsY'] : $re['stationList']['gpsY'],
+       'x' => (double) isset($re['stationList'][0]) ? $re['stationList'][0]['gpsX'] : $re['stationList']['gpsX'],
+       'y' => (double) isset($re['stationList'][0]) ? $re['stationList'][0]['gpsY'] : $re['stationList']['gpsY'],
       );
 
      } catch (\Throwable $th) {
@@ -201,10 +200,10 @@ class RouteController extends Controller {
  }
 
  public function direction(Request $r) {
-  $lon2 = (float) $r->input('x2');
-  $lon1 = (float) $r->input('x1');
-  $lat1 = (float) $r->input('y1');
-  $lat2 = (float) $r->input('y2');
+  $lon2 = (double) $r->input('x2');
+  $lon1 = (double) $r->input('x1');
+  $lat1 = (double) $r->input('y1');
+  $lat2 = (double) $r->input('y2');
   $a = log(tan($lat2 / 2 + M_PI / 4) / tan($lat1 / 2 + M_PI / 4));
   $lon = abs($lon1 - $lon2);
   $bear = (atan2($lon, $a) * 180 / M_PI);
