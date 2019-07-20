@@ -41,9 +41,9 @@ class RouteController extends Controller {
 
  private function pasrseWalk($arr) {
   $data = array();
-  array_shift($arr);
-  array_pop($arr);
-
+  $x = 0;
+  $y = 0;
+  $i = 0;
   foreach ($arr as $v) {
    try {
     $lon1 = (float) $v->eye[0];
@@ -68,8 +68,8 @@ class RouteController extends Controller {
     }
    }
    $temp = array(
-    'x' => $v->lng,
-    'y' => $v->lat,
+    'x' => isset($arr[$i + 1]) ? $arr[$i + 1]->lng : 0,
+    'y' => isset($arr[$i + 1]) ? $arr[$i + 1]->lat : 0,
     'direction' => $tan,
     'description' => $v->turnDesc,
     'distance' => $v->distance,
@@ -79,7 +79,11 @@ class RouteController extends Controller {
     'pathY' => $pathY,
    );
    array_push($data, $temp);
+   $i++;
   }
+  array_shift($data);
+  array_pop($data);
+
   return $data;
  }
 
