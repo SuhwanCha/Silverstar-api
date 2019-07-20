@@ -158,7 +158,7 @@ If the last track is disconnected, or if the distance is too far to be searched,
 #### User search history
 
 - method: GET
-- URL: /search/history/get/`deviceId`
+- URL: /search/history/get2/`deviceId`
 - Request Params
   - `string[16] deviceId`
 - Response Params
@@ -169,12 +169,42 @@ If the last track is disconnected, or if the distance is too far to be searched,
 
   ```json
   [
-    { "query": "시청" },
-    { "query": "선릉역" },
-    { "query": "갤러리아 명품관 EAST" },
-    { "query": "압구정 현대아파트" },
-    { "query": "애플 가로수길" }
+    {
+      "x": 127.051,
+      "y": 37.5062,
+      "query": "월드원무역",
+      "created_at": "2019-07-20 11:55:31"
+    },
+    {
+      "x": 127.051,
+      "y": 37.5062,
+      "query": "월드원무역",
+      "created_at": "2019-07-20 11:59:32"
+    }
   ]
+  ```
+
+#### Put search history
+
+- Method: POST
+- URL: /search/history/put
+- Request Params
+  - `string[16] uid`
+  - `float x`
+  - `float y`
+  - `string name`: maximum 50 characters
+- Response Params
+
+  - "1": success
+  - "error": error
+
+- Request Params
+
+  ```text
+  x: 127.0508443
+  y: 37.5061825
+  name: 월드원무역
+  deviceId: da92d83b100cedb7
   ```
 
 ### Route

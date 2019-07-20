@@ -7,12 +7,6 @@ use Illuminate\Http\Request;
 
 class SearchController extends Controller {
 
- /**
-  * Return Search results by query.
-  *
-  * @param  string  $query
-  * @return Json
-  */
  public function show(Request $r) {
   $format = 'https://dapi.kakao.com/v2/local/search/keyword.json?y=%f&x=%f&query=%s&sort=%s';
   $uid = $r->input('deviceId');
@@ -47,16 +41,9 @@ class SearchController extends Controller {
    array_push($data, $temp);
   }
   return response()->json($data, 200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
-
   //   return response()->json($data, JSON_UNESCAPED_UNICODE);
  }
 
- /**
-  * Return list of Search History by user.
-  *
-  * @param  string  UID
-  * @return Json
-  */
  public function showHistory($uid) {
   return response()->json(
    DB::table('history')->select('name as query', 'created_at')->where('deviceid', $uid)->get(),
@@ -76,13 +63,31 @@ class SearchController extends Controller {
   } catch (Exception $e) {
    echo "error";
   }
+ }
 
+ public function putHistory(Request $r) {
+  try {
+   DB::table('newHistory')->insert([
+    'x' => $r->input('x'),
+    'y' => $r->input('y'),
+    'name' => $r->input('name'),
+    'deviceid' => $r->input('deviceId'),
+   ]);
+   echo "1";
+  } catch (Exception $e) {
+   echo "error";
+  }
  }
 
  public function getFavorite($uid) {
   return response()->json(
    DB::table('bookmark')->select('x', 'y', 'name', 'created_at')->where('deviceid', $uid)->get(),
    200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
+ }
 
+ public function showHistory2($uid) {
+  return response()->json(
+   DB::table('newHistory')->select('x', 'y', 'name as query', 'created_at')->where('deviceid', $uid)->get(),
+   200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
  }
 }

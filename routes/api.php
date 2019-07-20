@@ -12,7 +12,9 @@
  */
 
 Route::post('/search/get', 'SearchController@show');
-Route::get('/search/history/get/{id}', 'SearchController@showHistory');
+// Route::get('/search/history/get/{id}', 'SearchController@showHistory');
+Route::get('/search/history/get/{id}', 'SearchController@showHistory2');
+Route::post('/search/history/put', 'SearchController@putHistory');
 Route::post('/bookmark/put', 'SearchController@putFavorite');
 Route::get('/bookmark/get/{id}', 'SearchController@getFavorite');
 

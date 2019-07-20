@@ -10,7 +10,6 @@ class RouteController extends Controller {
   $x2 = $r->input('x2');
   $y1 = $r->input('y1');
   $y2 = $r->input('y2');
-
   $format = 'https://beta.map.naver.com/api/dir/findwalk?lo=ko&r=step&st=1&o=all&l=%f,%f,;%f,%f,&lang=ko';
   $url = sprintf($format, $x1, $y1, $x2, $y2);
 
@@ -19,12 +18,13 @@ class RouteController extends Controller {
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
   curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
   $result = curl_exec($ch);
-  $rawData = json_decode($result)->routes[0];
+  $rawData = json_decode($result);
+  return response()->json($rawData, 200, array('Content-Typee' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
+
   $route = $rawData->legs[0]->steps;
 
   array_shift($route);
   array_pop($route);
-  // return response()->json($rawData, 200, array('Content-Typee' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
 
   $summary = $rawData->summary;
   $data = array(
