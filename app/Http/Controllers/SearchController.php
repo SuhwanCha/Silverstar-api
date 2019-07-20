@@ -58,6 +58,7 @@ class SearchController extends Controller {
     'y' => $r->input('y'),
     'name' => $r->input('name'),
     'deviceid' => $r->input('deviceId'),
+    'address' => $r->input('address'),
    ]);
    echo "1";
   } catch (Exception $e) {
@@ -72,6 +73,7 @@ class SearchController extends Controller {
     'y' => $r->input('y'),
     'name' => $r->input('name'),
     'deviceid' => $r->input('deviceId'),
+    'address' => $r->input('address'),
    ]);
    echo "1";
   } catch (Exception $e) {
@@ -81,13 +83,13 @@ class SearchController extends Controller {
 
  public function getFavorite($uid) {
   return response()->json(
-   DB::table('bookmark')->select('x', 'y', 'name', 'created_at')->where('deviceid', $uid)->get(),
+   DB::table('bookmark')->select('x', 'y', 'name', 'address', 'created_at')->where('deviceid', $uid)->get(),
    200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
  }
 
  public function showHistory2($uid) {
   return response()->json(
-   DB::table('newHistory')->select('x', 'y', 'name as query', 'created_at')->where('deviceid', $uid)->get(),
+   DB::table('newHistory')->select('x', 'y', 'name as query', 'address', 'created_at')->where('deviceid', $uid)->get(),
    200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
  }
 }

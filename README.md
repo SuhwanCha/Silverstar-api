@@ -4,19 +4,19 @@ Restful API Server for Silverstar
 
 ## Table of Contents
 
-- [Siverstar-API](#siverstar-api)
-  - [Table of Contents](#table-of-contents)
-  - [Notice](#notice)
-  - [API LIST](#api-list)
-    - [Search](#search)
-      - [Search destination](#search-destination)
-      - [User search history](#user-search-history)
-    - [Route](#route)
-      - [Find Walk Rotue](#find-walk-rotue)
-      - [Find Bus Rotue](#find-bus-rotue)
-    - [Bookmarks](#bookmarks)
-      - [Get Bookmarks](#get-bookmarks)
-      - [Bookmark location](#bookmark-location)
+- [Table of Contents](#table-of-contents)
+- [Notice](#notice)
+- [API LIST](#api-list)
+  - [Search](#search)
+    - [Search destination](#search-destination)
+    - [User search history](#user-search-history)
+    - [Put search history](#put-search-history)
+  - [Route](#route)
+    - [Find Walk Rotue](#find-walk-rotue)
+    - [Find Bus Rotue](#find-bus-rotue)
+  - [Bookmarks](#bookmarks)
+    - [Get Bookmarks](#get-bookmarks)
+    - [Bookmark location](#bookmark-location)
 
 ## Notice
 
@@ -46,7 +46,7 @@ If the last track is disconnected, or if the distance is too far to be searched,
   - `float x`: longtitude
   - `float y`: latitude
   - `string name`: name of location
-  - `string addr`: address
+  - **[*]**`string address`
 
 - Request Example
 
@@ -173,13 +173,8 @@ If the last track is disconnected, or if the distance is too far to be searched,
       "x": 127.051,
       "y": 37.5062,
       "query": "월드원무역",
-      "created_at": "2019-07-20 11:55:31"
-    },
-    {
-      "x": 127.051,
-      "y": 37.5062,
-      "query": "월드원무역",
-      "created_at": "2019-07-20 11:59:32"
+      "address": "AA로 10",
+      "created_at": "2019-07-20 13:22:13"
     }
   ]
   ```
@@ -193,6 +188,7 @@ If the last track is disconnected, or if the distance is too far to be searched,
   - `float x`
   - `float y`
   - `string name`: maximum 50 characters
+  - `string address`
 - Response Params
 
   - "1": success
@@ -200,12 +196,13 @@ If the last track is disconnected, or if the distance is too far to be searched,
 
 - Request Params
 
-  ```text
+  ````text
   x: 127.0508443
   y: 37.5061825
   name: 월드원무역
   deviceId: da92d83b100cedb7
-  ```
+  address: AA로 10  ```
+  ````
 
 ### Route
 
@@ -338,8 +335,13 @@ If the last track is disconnected, or if the distance is too far to be searched,
 
   ```json
   [
-    { "x": 127.01, "y": 37.5045, "name": "애플 가로수길", "created_at": "2019-06-15 22:29:07" },
-    { "x": 127.31, "y": 37.5045, "name": "반포 자이 아파트", "created_at": "2019-06-15 22:32:33" }
+    {
+      "x": 127.051,
+      "y": 37.5062,
+      "name": "월드원무역",
+      "address": "AA로 12",
+      "created_at": "2019-07-20 13:24:56"
+    }
   ]
   ```
 
@@ -348,21 +350,23 @@ If the last track is disconnected, or if the distance is too far to be searched,
 - method: POST
 - URL: /bookmark/put
 - Request Params
-  - `string[16] uid`
-  - `float x`
-  - `float y`
-  - `string name`: maximum 50 characters
+- `string[16] uid`
+- `float x`
+- `float y`
+- `string name`: maximum 50 characters
+- **[*]**`string address`
 - Response Params
-  - "1": success
-  - "error": error
+- "1": success
+- "error": error
 - Request Example
 
-  ```text
-  x: 127.0099330000003
-  y: 37.504525000000015
-  name: 애플 가로수길
-  deviceid: fociencoxl1kdlsa
-  ```
+```text
+x: 127.0508443
+y: 37.5061825
+name: 월드원무역
+deviceId: da92d83b100cedb7
+address: AA로 12
+```
 
 - Response Example
 
