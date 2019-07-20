@@ -21,8 +21,11 @@ class RouteController extends Controller {
   $result = curl_exec($ch);
   $rawData = json_decode($result)->routes[0];
   $route = $rawData->legs[0]->steps;
+
   array_shift($route);
   array_pop($route);
+  // return response()->json($rawData, 200, array('Content-Typee' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
+
   $summary = $rawData->summary;
   $data = array(
    'summary' => array(
@@ -34,28 +37,36 @@ class RouteController extends Controller {
   );
   $data['route'] = $this->pasrseWalk($route);
 
-  return response()->json($data, 200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
+  return response()->json($data, 200, array('Content-Typee' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
  }
 
  private function pasrseWalk($arr) {
   $data = array();
+  array_shift($arr);
+  array_pop($arr);
+
   foreach ($arr as $v) {
-   if (($v->eye[1] - $v->lookAt[1] == 0)) {
-    if ($v->eye[0] - $v->lookAt[0] > 0) {
-     $tan = -90;
+   try {
+    if (($v->eye[1] - $v->lookAt[1] == 0)) {
+     if ($v->eye[0] - $v->lookAt[0] > 0) {
+      $tan = -90;
+     } else {
+      $tan = 90;
+     }
     } else {
-     $tan = 90;
+     $tan = (atan(($v->lookAt[0] - $v->eye[0]) / ($v->lookAt[1] - $v->eye[1])) * 180 / M_PI);
+     $tan *= ($v->lookAt[0] - $v->eye[0]) > 0 ? 1 : -1;
     }
-   } else {
-    $tan = (atan(($v->lookAt[0] - $v->eye[0]) / ($v->lookAt[1] - $v->eye[1])) * 180 / M_PI);
+   } catch (\Throwable $th) {
+    $tan = 0;
    }
+
    $pathX = array();
    $pathY = array();
    foreach (explode(' ', $v->path) as $vv) {
     if (($vv)) {
      array_push($pathX, (float) explode(',', $vv)[1]);
      array_push($pathY, (float) explode(',', $vv)[0]);
-
     }
    }
    $temp = array(
@@ -148,39 +159,11 @@ class RouteController extends Controller {
       'y' => (float) $re->stationList[0]->gpsY,
      );
      array_push($staion, $temp);
-     //  echo str_replace('-', '', $vv->displayCode) . ' ';
-     //  return response()->json($re, 200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
-
-     //  foreach ($re->msgBody->itemList as $vvv) {
-     // if ($vvv->arsId == str_replace('-', '', $vv->displayCode)) {
-     //  $temp = array(
-     //   'id' => $vv->displayCode,
-     //   'name' => $vv->displayName,
-     //   'x' => (float) $vvv->tmX,
-     //   'y' => (float) $vvv->tmY,
-     //  );
-     //  array_push($staion, $temp);
-     //  break;
-     // }
-     //  }
-     //  return response()->json($re, 200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
-     //  try {
-     //   $temp = array(
-     //    'id' => $vv->displayCode,
-     //    'name' => $vv->displayName,
-     //    'x' => (float) $re->result->bus->busStation->list[0]->x,
-     //    'y' => (float) $re->result->bus->busStation->list[0]->y,
-     //   );
-     //  } catch (ErrorException $e) {
-     //   print_r($re);
-     //  }
-
-     //  array_push($staion, $temp);
     }
     try {
      $busCongestion = $v->arrivals[0]->items[0]->congestion->desc;
      $remainingTime = $v->arrivals[0]->items[0]->remainingTime;
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
      $busCongestion = null;
      $remainingTime = null;
     }

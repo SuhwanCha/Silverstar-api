@@ -59,7 +59,7 @@ class SearchController extends Controller {
   */
  public function showHistory($uid) {
   return response()->json(
-   DB::table('history')->select('name as query')->where('deviceid', $uid)->get(),
+   DB::table('history')->select('name as query', 'created_at')->where('deviceid', $uid)->get(),
    200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
 
  }
