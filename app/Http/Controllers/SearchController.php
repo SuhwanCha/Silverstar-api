@@ -14,7 +14,12 @@ class SearchController extends Controller {
    'deviceid' => $uid,
    'name' => $r->input('query'),
   ]);
-  $url = sprintf($format, $r->input('x'), $r->input('y'), urlencode($r->input('query')), $r->input('sort') ? "accuracy" : "distance");
+  if ($r->input('sort') === null) {
+   $sort = 1;
+  } else {
+   $sort = $r->input('sort');
+  }
+  $url = sprintf($format, $r->input('x'), $r->input('y'), urlencode($r->input('query')), $sort ? "accuracy" : "distance");
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
