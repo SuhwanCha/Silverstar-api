@@ -67,6 +67,9 @@ class RouteController extends Controller {
      array_push($pathY, (double) explode(',', $vv)[0]);
     }
    }
+   array_shift($pathX);
+   array_shift($pathY);
+
    $temp = array(
     'x' => isset($arr[$i + 1]) ? $arr[$i + 1]->lng : 0,
     'y' => isset($arr[$i + 1]) ? $arr[$i + 1]->lat : 0,
