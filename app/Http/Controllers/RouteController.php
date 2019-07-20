@@ -19,7 +19,6 @@ class RouteController extends Controller {
   curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
   $result = curl_exec($ch);
   $rawData = json_decode($result);
-  return response()->json($rawData, 200, array('Content-Typee' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
 
   $route = $rawData->legs[0]->steps;
 
@@ -37,7 +36,7 @@ class RouteController extends Controller {
   );
   $data['route'] = $this->pasrseWalk($route);
 
-  return response()->json($data, 200, array('Content-Typee' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
+  return response()->json($data, 200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
  }
 
  private function pasrseWalk($arr) {
@@ -190,6 +189,21 @@ class RouteController extends Controller {
   }
 
   return response()->json($data, 200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
+ }
+
+ public function direction(Request $r) {
+  if ((float) $r->input('x2') - (float) $r->input('x1') == 0) {
+   if ((float) $r->input('y1') - (float) $r->input('y2') > 0) {
+    $tan = -90;
+   } else {
+    $tan = 90;
+   }
+  } else {
+   $tan = (atan(((float) $r->input('y1') - (float) $r->input('y2')) / ((float) $r->input('x2') - (float) $r->input('x1'))) * 180 / M_PI);
+   $tan *= ((float) $r->input('y2') - (float) $r->input('y1')) > 0 ? 1 : -1;
+  }
+  return $tan;
+
  }
 
 }

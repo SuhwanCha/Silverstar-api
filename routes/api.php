@@ -20,4 +20,4 @@ Route::get('/bookmark/get/{id}', 'SearchController@getFavorite');
 
 Route::post('/route/walk/get', 'RouteController@show');
 Route::post('/route/bus/get', 'RouteController@showBus');
-Route::post('/route/live', 'RouteController@live');
+Route::post('/route/direction', 'RouteController@direction');
