@@ -21,8 +21,10 @@ class RouteController extends Controller {
   $rawData = json_decode($result)->routes[0];
 
   $route = $rawData->legs[0]->steps;
-  array_shift($route);
-  array_pop($route);
+  // array_shift($route);
+  // array_pop($route);
+  // return response()->json($route, 200, array('Content-Type' => 'application/json;charset=utf8'), JSON_UNESCAPED_UNICODE);
+
   $summary = $rawData->summary;
   $data = array(
    'summary' => array(
@@ -44,16 +46,15 @@ class RouteController extends Controller {
 
   foreach ($arr as $v) {
    try {
-    if (($v->eye[1] - $v->lookAt[1] == 0)) {
-     if ($v->eye[0] - $v->lookAt[0] > 0) {
-      $tan = -90;
-     } else {
-      $tan = 90;
-     }
-    } else {
-     $tan = (atan(($v->lookAt[0] - $v->eye[0]) / ($v->lookAt[1] - $v->eye[1])) * 180 / M_PI);
-     $tan *= ($v->lookAt[0] - $v->eye[0]) > 0 ? 1 : -1;
-    }
+    $lon1 = (float) $v->eye[0];
+    $lon2 = (float) $v->lookAt[0];
+    $lat1 = (float) $v->eye[1];
+    $lat2 = (float) $v->lookAt[1];
+    $a = log(tan($lat2 / 2 + M_PI / 4) / tan($lat1 / 2 + M_PI / 4));
+    $lon = abs($lon1 - $lon2);
+    $tan = (atan2($lon, $a) * 180 / M_PI);
+    $tan *= ($lon2 - $lon1 < 0) ? -1 : 1;
+
    } catch (\Throwable $th) {
     $tan = 0;
    }
@@ -196,18 +197,15 @@ class RouteController extends Controller {
  }
 
  public function direction(Request $r) {
-  if ((float) $r->input('x2') - (float) $r->input('x1') == 0) {
-   if ((float) $r->input('y1') - (float) $r->input('y2') > 0) {
-    $tan = -90;
-   } else {
-    $tan = 90;
-   }
-  } else {
-   $tan = (atan(((float) $r->input('y1') - (float) $r->input('y2')) / ((float) $r->input('x2') - (float) $r->input('x1'))) * 180 / M_PI);
-   $tan *= ((float) $r->input('y2') - (float) $r->input('y1')) > 0 ? 1 : -1;
-  }
-  return $tan;
-
+  $lon2 = (float) $r->input('x2');
+  $lon1 = (float) $r->input('x1');
+  $lat1 = (float) $r->input('y1');
+  $lat2 = (float) $r->input('y2');
+  $a = log(tan($lat2 / 2 + M_PI / 4) / tan($lat1 / 2 + M_PI / 4));
+  $lon = abs($lon1 - $lon2);
+  $bear = (atan2($lon, $a) * 180 / M_PI);
+  $bear *= ($lon2 - $lon1 < 0) ? -1 : 1;
+  return ($bear);
  }
 
 }

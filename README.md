@@ -319,6 +319,18 @@ If the last track is disconnected, or if the distance is too far to be searched,
 - Response Example:
   [Json: Response Example](./route_bus_get.json)
 
+#### Calculate direction between two coordinates
+
+- method: POST
+- URL: /route/direction
+- Request Params
+  - `float x1`: Current longitude
+  - `float y1`: Current latitude
+  - `float x2`: Destination longitude
+  - `float y2`: Destination latitude
+- Response
+  - Bearing
+
 ### Bookmarks
 
 #### Get Bookmarks
