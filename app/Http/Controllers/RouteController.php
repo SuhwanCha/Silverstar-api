@@ -18,13 +18,11 @@ class RouteController extends Controller {
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
   curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
   $result = curl_exec($ch);
-  $rawData = json_decode($result);
+  $rawData = json_decode($result)->routes[0];
 
   $route = $rawData->legs[0]->steps;
-
   array_shift($route);
   array_pop($route);
-
   $summary = $rawData->summary;
   $data = array(
    'summary' => array(
@@ -150,13 +148,19 @@ class RouteController extends Controller {
      $xml = simplexml_load_string($re, "SimpleXMLElement", LIBXML_NOCDATA);
      $json = json_encode($xml);
 
-     $re = json_decode($json);
-     $temp = array(
-      'id' => $vv->displayCode,
-      'name' => $vv->displayName,
-      'x' => (float) $re->stationList[0]->gpsX,
-      'y' => (float) $re->stationList[0]->gpsY,
-     );
+     $re = json_decode($json, true);
+
+     try {
+      $temp = array(
+       'id' => $vv->displayCode,
+       'name' => $vv->displayName,
+       'x' => (float) isset($re['stationList'][0]) ? $re['stationList'][0]['gpsX'] : $re['stationList']['gpsX'],
+       'y' => (float) isset($re['stationList'][0]) ? $re['stationList'][0]['gpsY'] : $re['stationList']['gpsY'],
+      );
+
+     } catch (\Throwable $th) {
+     }
+
      array_push($staion, $temp);
     }
     try {
